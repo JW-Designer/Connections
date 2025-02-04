@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NYT Connections</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100vw;
+            height: auto;
+            background: #f4f4f4;
+        }
+        .container {
+            text-align: center;
+        }
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, 7rem);
+            gap: 10px;
+            margin: 10px auto;
+            max-width: 100%;
+            width: 28rem;
+        }
+        .word {
+            background: #e7e7d7;
+            padding: 15px;
+            cursor: pointer;
+            font-size: 18px;
+            text-align: center;
+            transition: transform 0.2s;
+            border-radius: 0.5rem;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            aspect-ratio: 1 / 1;
+            font-weight: bold;
+            text-transform: uppercase;
+        }
+        .word:hover {
+            transform: scale(1.05);
+        }
+        .selected {
+            color: #f4f4f4;
+            background: rgb(77, 77, 77);
+        }
+        .merged {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            grid-column: span 4;
+            grid-row: span 1; 
+            padding: 15px;
+            font-size: 18px;
+            font-weight: bold;
+            border-radius: 0.5rem;
+        }
+        .merged:hover {
+            transform: scale(1.0);
+        }
+        .group1 { background: #f0f4a6 !important; height: 5rem; width: 28rem; }
+        .group2 { background: #c785f8 !important; height: 5rem; width: 28rem; }
+        .group3 { background: #a8fea8 !important; height: 5rem; width: 28rem; }
+        .group4 { background: #9fbfff !important; height: 5rem; width: 28rem; }
+        #submit-btn {
+            margin-top: 20px;
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #101010;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+        #submit-btn:disabled {
+            background-color: #ccc;
+        }
+
+        .dots-container {
+            margin-top: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        .dots-container p {
+            margin-right: 10px;
+            font-size: 18px;
+        }
+        .dot {
+            display: inline-block;
+            width: 15px;
+            height: 15px;
+            margin: 0 5px;
+            border-radius: 50%;
+            background-color: rgb(195, 195, 195);
+        }
+        .dot.active {
+            background-color: black;
+        }
+        .dot.disabled {
+            background-color: #ccc;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h2>NYT Connections</h2>
+        <p id="message">Create four groups of four!</p>
+        <div class="grid" id="grid"></div>
+
+        <!-- Added dots container -->
+        <div class="dots-container" id="dots-container">
+            <p>Mistakes remaining:</p>
+            <div class="dot active"></div>
+            <div class="dot active"></div>
+            <div class="dot active"></div>
+            <div class="dot active"></div>
+        </div>
+
+        <button id="submit-btn" disabled>Submit</button>
+    </div>
+    
+    <script>
+        let words = [
+            { text: "ROCHE", group: 1 }, { text: "MOSS", group: 1 }, { text: "FLEE", group: 1 }, { text: "MIGHT", group: 1 },
+            { text: "TEQUILA SUNRISE", group: 2 }, { text: "KELP", group: 2 }, { text: "FERRIS", group: 2 }, { text: "DATE", group: 2 },
+            { text: "WHALE", group: 3 }, { text: "FLAMINGO", group: 3 }, { text: "HILL", group: 3 }, { text: "FIFTH", group: 3 },
+            { text: "TIKTOK", group: 4 }, { text: "EXPIRE", group: 4 }, { text: "CALENDAR", group: 4 }, { text: "DOOMSDAY", group: 4 }
+        ];
+        words.sort(() => Math.random() - 0.5);
+
+        const grid = document.getElementById("grid");
+        const message = document.getElementById("message");
+        const submitBtn = document.getElementById("submit-btn");
+        const dotsContainer = document.getElementById("dots-container");
+        let selected = [];
+        let mistakes = 0;
+        let solutionRevealed = false;  // Flag to track if the solution has been revealed
+        
+        function selectWord(index, div) {
+            if (selected.includes(index)) {
+                selected = selected.filter(i => i !== index);
+                div.classList.remove("selected");
+            } else if (selected.length < 4) {
+                selected.push(index);
+                div.classList.add("selected");
+            }
+            submitBtn.disabled = selected.length !== 4;
+        }
+
+        let solvedGroups = [false, false, false, false]; // Track solved groups
+
+        // Renders the grid
+        function renderGrid() {
+            if (solutionRevealed) return;  // If solution is revealed, prevent further rendering
+            
+            grid.innerHTML = "";
+            words.forEach((word, index) => {
+                const div = document.createElement("div");
+                div.classList.add("word");
+                div.innerText = word.text;
+                div.dataset.index = index;
+            
+                if (word.solved) {
+                    let solvedText = `${word.solvedText}`;
+                    // Add specific text based on the group
+                    switch(word.group) {
+                    case 1:
+                        solvedText += "<br>Homophones for common bug :3";
+                        break;
+                    case 2:
+                        solvedText += "<br>Beach day on the pier <3";
+                        break;
+                    case 3:
+                        solvedText += "<br>CMU dorms";
+                        break;
+                    case 4:
+                        solvedText += "<br>Your days are numbered :3";
+                        break;
+                    }
+                    div.innerHTML = solvedText;
+                    div.classList.add("merged", `group${word.group}`);
+                } else {
+                    div.addEventListener("click", () => selectWord(index, div));
+                }
+                grid.appendChild(div);
+            });
+        }
+
+        // Reveals the answer
+        function revealAnswer() {
+            solutionRevealed = true;  // Mark the solution as revealed
+            grid.innerHTML = "";  // Clear current grid
+            
+            const groups = [
+                { group: 1, words: ["ROCHE", "MOSS", "FLEE", "MIGHT"], solvedText: "Homophones for common bug :3" },
+                { group: 2, words: ["TEQUILA SUNRISE", "KELP", "FERRIS", "DATE"], solvedText: "Beach day on the pier <3" },
+                { group: 3, words: ["WHALE", "FLAMINGO", "HILL", "FIFTH"], solvedText: "CMU dorms" },
+                { group: 4, words: ["TIKTOK", "EXPIRE", "CALENDAR", "DOOMSDAY"], solvedText: "Your days are numbered :3" }
+            ];
+
+            // Loop through each group and display it
+            groups.forEach(group => {
+                const groupDiv = document.createElement("div");
+                groupDiv.classList.add("merged", `group${group.group}`);
+                groupDiv.innerHTML = group.words.join(" ") + `<br>${group.solvedText}`;
+                grid.appendChild(groupDiv);
+            });
+        }
+
+        // Render the dots (Mistakes remaining)
+        function renderDots() {
+            dotsContainer.innerHTML = "<p>Mistakes remaining:</p>";
+            for (let i = 0; i < 4; i++) {
+                const dot = document.createElement("div");
+                dot.classList.add("dot");
+                if (i < 4 - mistakes) {
+                    dot.classList.add("active");
+                } else {
+                    dot.classList.add("disabled");
+                }
+                dotsContainer.appendChild(dot);
+            }
+        }
+
+        function checkSelection() {
+            const selectedWords = selected.map(i => words[i]);
+            const groups = new Set(selectedWords.map(w => w.group));
+
+            if (groups.size === 1) {
+                const groupIndex = selectedWords[0].group - 1; // Group index (0 to 3)
+
+                // Update solvedGroups array to mark the group as solved
+                solvedGroups[groupIndex] = true;
+
+                // Construct the solved text and update the words array
+                const solvedText = selectedWords.map(w => w.text).join(" ");
+                let newWords = words.filter((w, i) => !selected.includes(i));
+                newWords.unshift({ solved: true, solvedText, group: selectedWords[0].group });
+                words.length = 0;
+                words.push(...newWords);
+
+                if (solvedGroups.every(group => group)) {
+                    message.innerText = "Congratulations! Now you can admire 'the puzzle'";
+                } else {
+                    console.log('Bug. Just kidding.');
+                }
+            } else {
+                mistakes++;
+                message.innerText = "Ooo...that's embarrassing";
+                if (mistakes >= 1) {
+                    message.innerText = "Aw man I thought it'd be easy :(";
+                    revealAnswer();  // Reveal the answer after 4 mistakes
+                }
+            }
+            selected = [];
+            submitBtn.disabled = true;
+            renderGrid();  // Re-render the grid after selection
+            renderDots();  // Update the dots after the selection
+        }
+
+        // Add the event handler for the submit button
+        submitBtn.addEventListener("click", checkSelection);
+
+        renderGrid();  // Initial grid render
+        renderDots();  // Initial dots render
+    </script>
+</body>
+</html>
