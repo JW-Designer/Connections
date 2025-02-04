@@ -5,105 +5,154 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>NYT Connections</title>
     <style>
-        body {
-            font-family: Arial, sans-serif;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            width: 100vw;
-            height: auto;
-            background: #f4f4f4;
-        }
-        .container {
-            text-align: center;
+    body {
+        font-family: Arial, sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        width: 100vw;
+        height: auto;
+        background: #f4f4f4;
+    margin: 0; /* Add this */
+    padding: 0;
+    }
+    
+    .container {
+        text-align: center;
+        width: 100%; /* Add this */
+        margin: 0 auto;
+    }
+    
+    .grid {
+        display: grid;
+        grid-template-columns: repeat(4, 7rem);
+        gap: 10px;
+        margin: 10px auto;
+        max-width: 100%;
+        width: 28rem;
+    }
+    
+    .word {
+        background: #e7e7d7;
+        padding: 15px;
+        cursor: pointer;
+        font-size: 18px;
+        text-align: center;
+        transition: transform 0.2s;
+        border-radius: 0.5rem;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        aspect-ratio: 1 / 1;
+        font-weight: bold;
+        text-transform: uppercase;
+    }
+    
+    .word:hover {
+        transform: scale(1.05);
+    }
+    
+    .selected {
+        color: #f4f4f4;
+        background: rgb(77, 77, 77);
+    }
+    
+    .merged {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+        grid-column: span 4;
+        grid-row: span 1;
+        padding: 15px;
+        font-size: 18px;
+        font-weight: bold;
+        border-radius: 0.5rem;
+    }
+    
+    .merged:hover {
+        transform: scale(1.0);
+    }
+    
+    .group1 { background: #f0f4a6 !important; height: 5rem; }
+    .group2 { background: #c785f8 !important; height: 5rem; }
+    .group3 { background: #a8fea8 !important; height: 5rem; }
+    .group4 { background: #9fbfff !important; height: 5rem; }
+    
+    #submit-btn {
+        margin-top: 20px;
+        padding: 10px 20px;
+        font-size: 16px;
+        background-color: #101010;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+    }
+    
+    #submit-btn:disabled {
+        background-color: #ccc;
+    }
+    
+    .dots-container {
+        margin-top: 20px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+    
+    .dots-container p {
+        margin-right: 10px;
+        font-size: 18px;
+    }
+    
+    .dot {
+        display: inline-block;
+        width: 15px;
+        height: 15px;
+        margin: 0 5px;
+        border-radius: 50%;
+        background-color: rgb(195, 195, 195);
+    }
+    
+    .dot.active {
+        background-color: black;
+    }
+    
+    .dot.disabled {
+        background-color: #ccc;
+    }
+    
+    /* Media query for mobile screens */
+    @media (max-width: 600px) {
+        .body{
+            width:100vw;
         }
         .grid {
-            display: grid;
-            grid-template-columns: repeat(4, 7rem);
-            gap: 10px;
-            margin: 10px auto;
-            max-width: 100%;
-            width: 28rem;
+            grid-template-columns: repeat(4, 5rem);
+            width: 20rem;
+            margin:1.5rem;
         }
+    
         .word {
-            background: #e7e7d7;
-            padding: 15px;
-            cursor: pointer;
-            font-size: 18px;
-            text-align: center;
-            transition: transform 0.2s;
-            border-radius: 0.5rem;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            aspect-ratio: 1 / 1;
-            font-weight: bold;
-            text-transform: uppercase;
+            padding: 10px;
+            font-size: 12px;
         }
-        .word:hover {
-            transform: scale(1.05);
-        }
-        .selected {
-            color: #f4f4f4;
-            background: rgb(77, 77, 77);
-        }
+    
         .merged {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            text-align: center;
-            grid-column: span 4;
-            grid-row: span 1; 
-            padding: 15px;
-            font-size: 18px;
-            font-weight: bold;
-            border-radius: 0.5rem;
+            padding: 10px;
+            font-size: 10px;
+            width: 19.5rem;
         }
-        .merged:hover {
-            transform: scale(1.0);
+    
+        .group1, .group2, .group3, .group4 {
+            height: 4rem;
+            width: 20rem;
         }
-        .group1 { background: #f0f4a6 !important; height: 5rem; width: 28rem; }
-        .group2 { background: #c785f8 !important; height: 5rem; width: 28rem; }
-        .group3 { background: #a8fea8 !important; height: 5rem; width: 28rem; }
-        .group4 { background: #9fbfff !important; height: 5rem; width: 28rem; }
-        #submit-btn {
-            margin-top: 20px;
-            padding: 10px 20px;
-            font-size: 16px;
-            background-color: #101010;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
-        }
-        #submit-btn:disabled {
-            background-color: #ccc;
-        }
-
-        .dots-container {
-            margin-top: 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-        .dots-container p {
-            margin-right: 10px;
-            font-size: 18px;
-        }
-        .dot {
-            display: inline-block;
-            width: 15px;
-            height: 15px;
-            margin: 0 5px;
-            border-radius: 50%;
-            background-color: rgb(195, 195, 195);
-        }
-        .dot.active {
-            background-color: black;
-        }
-        .dot.disabled {
-            background-color: #ccc;
-        }
+    }
+    
+        /* Mobile responsiveness */
+       
     </style>
 </head>
 <body>
